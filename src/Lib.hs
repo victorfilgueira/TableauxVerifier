@@ -7,6 +7,10 @@ module Lib
     increment,
     split,
     splitPrograms,
+    isBalanced,
+    countOpenParens,
+    countCloseParens,
+    splitProgramsWithParams,
   )
 where
 
@@ -21,15 +25,17 @@ increment x = x + 1
 
 -- getAllPrograms :: [Char] -> Int -> Int -> Int -> Int -> [Char]
 -- getAllPrograms program start opennedBracket closedBracket level =
---   if start <= length program then
---     if get program start == "(" then
---       increment opennedBracket
---     else if get program start == ")" then
---       increment opennedBracket
---     else if ((get program start == "^") || (get program start == "v") || (get program start == ">") || (get program start == "^")) && opennedBracket == closedBracket then
---       getAllPrograms program (start + 1) 0 0 0
+--   if start <= length program
+--     then if get program start == "("
+--       then increment opennedBracket
+--     else
+--       if get program start == ")"
+--         then increment closeBracket
+--       else
+--         if ((get program start == "^") || (get program start == "v") || (get program start == ">") || (get program start == "^")) && opennedBracket == closedBracket
+--           then getAllPrograms program (start + 1) 0 0 0
 --   else
---     (increment start)
+--     increment start
 
 split :: [Char] -> [[Char]]
 split str = case break (== '>') str of
@@ -44,5 +50,17 @@ splitPrograms (c : cs) delim
   where
     rest = splitPrograms cs delim
 
--- splitParen :: String -> [String]
--- splitParen = endByOneOf str
+countOpenParens :: String -> Int
+countOpenParens str = length $ filter (== '(') str
+
+countCloseParens :: String -> Int
+countCloseParens str = length $ filter (== ')') str
+
+isBalanced :: String -> Bool
+isBalanced str = countOpenParens str == countCloseParens str
+
+splitProgramsWithParams :: String -> Char -> [String]
+splitProgramsWithParams str c =
+  if isBalanced str
+    then splitPrograms str c
+    else []
