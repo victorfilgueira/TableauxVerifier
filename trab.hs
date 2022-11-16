@@ -1,32 +1,44 @@
 
-formula = "(avb)v(a^b)"
+formula = "F(avb)~(a^b)"
+formulaPrefix = "(v(v(a,b),^(a,b)))"
 
-ajeita :: [Char] -> ([Char], Char, [Char])
-ajeita str = (prim, op, seg)
-    where prim = take 5 str
-          op = last (take 6 str)
+ajeita :: [Char] -> (Char, [Char], Char, [Char])
+ajeita str = (value, prim, op, seg)
+    where value = head str
+          prim = take 5 (tail str) 
+          op = last (take 7 str)
           seg = reverse (take 5 (reverse str))
 
 x = ajeita formula
 
-prim :: ([Char], Char, [Char]) -> [Char]
-prim (a,_,_) = a
+value :: (Char, [Char], Char, [Char]) -> Char
+value (a,_,_,_) = a
 
-operador :: ([Char], Char, [Char]) -> Char
-operador (_,b,_) = b
+prim :: (Char, [Char], Char, [Char]) -> [Char]
+prim (_,b,_,_) = b
 
-seg :: ([Char], Char, [Char]) -> [Char]
-seg (_,_,c) = c
+operador :: (Char, [Char], Char, [Char]) -> Char
+operador (_,_,c,_) = c
 
+seg :: (Char, [Char], Char, [Char]) -> [Char]
+seg (_,_,_,d) = d
+
+val = value x
 p = prim x
 op = operador x
 s = seg x
 
-
-{-regra :: Char -> Char -> ((Char, [Char]), (Char, [Char]))
-regra p op s
-    | op == 'v' = (('V', prim), ('V', seg))
-    otherwise error "Empty"-}
+regra :: Char -> [Char] -> Char -> [Char] -> [String]
+regra val prim op seg
+    | op == 'v' = if val == 'V' then ["V", prim, "V", seg, "/"]
+        else ["F", prim, "F", seg, ";"]
+    | op == '^' = if val == 'V' then ["V", prim, "V", seg, ";"]
+        else ["F", prim, "F", seg, "/"]
+    | op == '>' = if val == 'V' then ["F", prim, "V", seg, "/"]
+        else ["V", prim, "F", seg, ";"]
+    | op == '~' = if val == 'V' then ["F", prim]
+        else ["V", prim]
+    | otherwise = ["Operador Errado"]
 
 
 input :: IO ()
