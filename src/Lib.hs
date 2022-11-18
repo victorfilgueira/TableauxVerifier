@@ -1,16 +1,21 @@
 {-# OPTIONS_GHC -Wno-deferred-out-of-scope-variables #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
+{-# OPTIONS_GHC -Wno-name-shadowing #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# OPTIONS_GHC -Wno-unused-matches #-}
+
+{-# HLINT ignore "Redundant lambda" #-}
+{-# HLINT ignore "Collapse lambdas" #-}
+{-# HLINT ignore "Use splitAt" #-}
 
 module Lib
   ( getProgram,
-    increment,
-    split,
-    splitPrograms,
-    isBalanced,
     countOpenParens,
     countCloseParens,
-    splitProgramsWithParams,
+    indexOf,
+    getIndexOf,
+    getFirstPart,
+    splitProgramsFunc,
   )
 where
 
@@ -20,47 +25,38 @@ getProgram = do
   line <- getLine
   print line
 
-increment :: Int -> Int
-increment x = x + 1
-
--- getAllPrograms :: [Char] -> Int -> Int -> Int -> Int -> [Char]
--- getAllPrograms program start opennedBracket closedBracket level =
---   if start <= length program
---     then if get program start == "("
---       then increment opennedBracket
---     else
---       if get program start == ")"
---         then increment closeBracket
---       else
---         if ((get program start == "^") || (get program start == "v") || (get program start == ">") || (get program start == "^")) && opennedBracket == closedBracket
---           then getAllPrograms program (start + 1) 0 0 0
---   else
---     increment start
-
-split :: [Char] -> [[Char]]
-split str = case break (== '>') str of
-  (a, '>' : b) -> a : split b
-  (a, "") -> [a]
-
-splitPrograms :: String -> Char -> [String]
-splitPrograms [] delim = [""]
-splitPrograms (c : cs) delim
-  | c == delim = "" : rest
-  | otherwise = (c : head rest) : tail rest
-  where
-    rest = splitPrograms cs delim
-
 countOpenParens :: String -> Int
 countOpenParens str = length $ filter (== '(') str
 
 countCloseParens :: String -> Int
 countCloseParens str = length $ filter (== ')') str
 
-isBalanced :: String -> Bool
-isBalanced str = countOpenParens str == countCloseParens str
+indexOf :: (Eq a) => a -> [a] -> Int
+indexOf n [] = -1
+indexOf n (x : xs)
+  | n == x = 0
+  | otherwise = case n `indexOf` xs of
+      -1 -> -1
+      i -> i + 1
 
-splitProgramsWithParams :: String -> Char -> [String]
-splitProgramsWithParams str c =
-  if isBalanced str
-    then splitPrograms str c
-    else []
+getIndexOf :: Char -> String -> String -> Int
+getIndexOf c str = head . (filter (> -1) . map (\y -> if y == c then indexOf y str else -1))
+
+getFirstPart :: Char -> String -> String -> String
+getFirstPart c str = head . (filter (not . null) . map (\y -> if y == c then take (getIndexOf c str str) str else []))
+
+splitAtIndex :: Int -> [Char] -> ([Char], [Char])
+splitAtIndex = \n -> \xs -> (take n xs, drop (n + 1) xs)
+
+splitProgramsFunc :: String -> String -> (String, String)
+splitProgramsFunc str =
+  head
+    . ( filter (not . null . fst)
+          . map
+            ( \y ->
+                ( if (y == '>' || y == '^' || y == 'v') && (countOpenParens (getFirstPart y str str) == countCloseParens (getFirstPart y str str))
+                    then splitAtIndex (getIndexOf y str str) str
+                    else ("", "")
+                )
+            )
+      )
