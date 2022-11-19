@@ -16,6 +16,12 @@ module Lib
     getIndexOf,
     getFirstPart,
     splitProgramsFunc,
+    splitByFormulaValue,
+    splitValue,
+    splitAtIndex,
+    getSecondProgram,
+    executeFunc,
+    -- splitProgramsFunc2,
   )
 where
 
@@ -45,18 +51,48 @@ getIndexOf c str = head . (filter (> -1) . map (\y -> if y == c then indexOf y s
 getFirstPart :: Char -> String -> String -> String
 getFirstPart c str = head . (filter (not . null) . map (\y -> if y == c then take (getIndexOf c str str) str else []))
 
-splitAtIndex :: Int -> [Char] -> ([Char], [Char])
-splitAtIndex = \n -> \xs -> (take n xs, drop (n + 1) xs)
+splitAtIndex :: Int -> [Char] -> [[Char]]
+splitAtIndex = \n -> \xs -> [take n xs, [xs !! max 0 n], drop n (tail xs)]
 
-splitProgramsFunc :: String -> String -> (String, String)
+splitProgramsFunc :: String -> String -> [String]
 splitProgramsFunc str =
   head
-    . ( filter (not . null . fst)
+    . ( filter (not . null)
           . map
             ( \y ->
                 ( if (y == '>' || y == '^' || y == 'v') && (countOpenParens (getFirstPart y str str) == countCloseParens (getFirstPart y str str))
                     then splitAtIndex (getIndexOf y str str) str
-                    else ("", "")
+                    else []
                 )
             )
       )
+
+splitByFormulaValue :: String -> Char -> [String]
+splitByFormulaValue [] delim = [""]
+splitByFormulaValue (c : cs) delim
+  | c == delim = [c] : rest
+  | otherwise = (c : head rest) : tail rest
+  where
+    rest = splitByFormulaValue cs delim
+
+splitValue :: String -> [Char] -> [String]
+splitValue str = head . (filter (not . null) . map (\y -> if y == 'V' || y == 'F' then splitByFormulaValue str y else []))
+
+-- splitProgramsFunc2 :: String -> String -> [(String, String)]
+-- splitProgramsFunc2 str =
+--   map
+--     ( \y ->
+--         ( if (y == '>' || y == '^' || y == 'v') && (countOpenParens (getFirstPart y str str) == countCloseParens (getFirstPart y str str))
+--             then splitAtIndex (getIndexOf y str str) str
+--             else ("", "")
+--         )
+--     )
+
+-- v((avb),(b^a))
+-- v(v(a,b),^(b,a))
+
+getSecondProgram :: [String] -> [String]
+getSecondProgram [x : xs] = splitProgramsFunc xs xs
+
+executeFunc :: String -> [String]
+executeFunc str = getSecondProgram (splitValue str str)
