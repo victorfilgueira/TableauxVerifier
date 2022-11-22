@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -Wno-deferred-out-of-scope-variables #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 {-# OPTIONS_GHC -Wno-name-shadowing #-}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# OPTIONS_GHC -Wno-unused-matches #-}
-
 {-# HLINT ignore "Redundant lambda" #-}
 {-# HLINT ignore "Collapse lambdas" #-}
 {-# HLINT ignore "Use splitAt" #-}
+{-# OPTIONS_GHC -Wno-typed-holes #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# OPTIONS_GHC -Wno-unused-matches #-}
 
 module Lib
   ( getProgram,
@@ -20,7 +20,11 @@ module Lib
     splitValue,
     splitAtIndex,
     getSecondProgram,
+    returnSecondProgram,
     executeFunc,
+    getFirstProgram,
+    insert,
+    getFullValues,
     -- splitProgramsFunc2,
   )
 where
@@ -78,21 +82,24 @@ splitByFormulaValue (c : cs) delim
 splitValue :: String -> [Char] -> [String]
 splitValue str = head . (filter (not . null) . map (\y -> if y == 'V' || y == 'F' then splitByFormulaValue str y else []))
 
--- splitProgramsFunc2 :: String -> String -> [(String, String)]
--- splitProgramsFunc2 str =
---   map
---     ( \y ->
---         ( if (y == '>' || y == '^' || y == 'v') && (countOpenParens (getFirstPart y str str) == countCloseParens (getFirstPart y str str))
---             then splitAtIndex (getIndexOf y str str) str
---             else ("", "")
---         )
---     )
-
 -- v((avb),(b^a))
 -- v(v(a,b),^(b,a))
+-- "Vb>(a^(bva))"
 
-getSecondProgram :: [String] -> [String]
-getSecondProgram [x : xs] = splitProgramsFunc xs xs
+getSecondProgram :: [String] -> String
+getSecondProgram list = list !! 1
+
+getFirstProgram :: [a] -> a
+getFirstProgram = head
+
+returnSecondProgram :: String -> String
+returnSecondProgram str = getSecondProgram (splitValue str str)
 
 executeFunc :: String -> [String]
-executeFunc str = getSecondProgram (splitValue str str)
+executeFunc str = splitProgramsFunc (returnSecondProgram str) (returnSecondProgram str)
+
+insert :: a -> [a] -> [a]
+insert str [a] = [str, a]
+
+getFullValues :: String -> [String]
+getFullValues str = insert (getFirstProgram (splitValue str str)) (executeFunc str)
