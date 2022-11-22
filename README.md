@@ -10,7 +10,7 @@ Inserir a fórmula que deseja na linha 74 do arquivo "main.hs".
 
 * A fórmula deve estar em um padrão F(x)op(y), onde 'F' é o primeiro valor que nega a fórmula, 
 'x' e 'y' são os termos da fórmula, que por sua vez são compostos por 'avb' ou 'a^b' ou 'a>b', por exemplo. 
-E 'op' é o operador principal da fórmula. *
+E 'op' é o operador principal da fórmula.
 
 Exs: 
 - F(avb)v(bva)
