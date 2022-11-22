@@ -4,14 +4,84 @@ main = do
     formula <- getLine
     print ("formula = " ++ formula)
 
-formula = "F(avb)v(a^b)"
+
+getProgram :: IO ()
+getProgram = do
+  print "Digite a formula para ser verificada: "
+  line <- getLine
+  print line
+  print (ajeita line)
+
+countOpenParens :: String -> Int
+countOpenParens str = length $ filter (== '(') str
+
+countCloseParens :: String -> Int
+countCloseParens str = length $ filter (== ')') str
+
+splitAtIndex :: Int -> [Char] -> [[Char]]
+splitAtIndex = \n -> \xs -> [take n xs, [xs !! max 0 n], drop n (tail xs)]
+
+-- variant of map that passes each element's index as a second argument to f
+mapInd :: (a -> Int -> b) -> [a] -> [b]
+mapInd f l = zipWith f l [0 ..]
+
+splitProgramsFunc :: String -> String -> [String]
+splitProgramsFunc str =
+  head
+    . ( filter (not . null)
+          . mapInd
+            ( \y l ->
+                ( if (y == '>' || y == '^' || y == 'v') && (countOpenParens (take l str) == countCloseParens (take l str))
+                    then splitAtIndex l str
+                    else []
+                )
+            )
+      )
+
+splitByFormulaValue :: String -> Char -> [String]
+splitByFormulaValue [] delim = [""]
+splitByFormulaValue (c : cs) delim
+  | c == delim = [c] : rest
+  | otherwise = (c : head rest) : tail rest
+  where
+    rest = splitByFormulaValue cs delim
+
+splitValue :: String -> [Char] -> [String]
+splitValue str = head . (filter (not . null) . map (\y -> if y == 'V' || y == 'F' then splitByFormulaValue str y else []))
+
+-- v((avb),(b^a))
+-- v(v(a,b),^(b,a))
+-- "Vb>(a^(bva))"
+-- "F(avb)v(a^b)"
+
+getSecondProgram :: [String] -> String
+getSecondProgram list = list !! 1
+
+returnSecondProgram :: String -> String
+returnSecondProgram str = getSecondProgram (splitValue str str)
+
+executeFunc :: String -> [String]
+executeFunc str = splitProgramsFunc (returnSecondProgram str) (returnSecondProgram str)
+
+insert :: String -> [String] -> [String]
+insert str list = [val, fstList, sndList, thrList]
+  where
+    val = str
+    fstList = head list
+    sndList = head (tail list)
+    thrList = last list
+
+formula = "F(~avb)v(a>b)"
 
 ajeita :: String -> [String]
+ajeita str = insert (head (splitValue str str)) (executeFunc str)
+
+{-ajeita :: String -> [String]
 ajeita str = [value, prim, op, seg]
     where value = take 1 str
           prim = take 5 (tail str) 
           op = take 1 (tail (tail (tail (tail (tail (tail formula))))))
-          seg = reverse (take 5 (reverse str))
+          seg = reverse (take 5 (reverse str))-}
 
 regra :: [String] -> [String]
 regra x
@@ -100,6 +170,7 @@ nos = makeNo gal1 gal2 gal11 gal12 gal21 gal22
 {-head' :: [String] -> String
 head' [] = ""
 head' (x:xs) = x
+
 last' :: [String] -> String
 last' [] = ""
 last' (x:[]) = x
@@ -156,32 +227,4 @@ arvore (x:xs) = arvRegra x ++ "\n" ++ arvore xs
 arvore [x] = arvRegra x
 
 bar :: IO()
-bar = putStrLn (arvore results)
-
-{-
-arvRegra :: [String] -> String
-arvRegra results
-    | a == ";" = (x++y) ++ "\n" ++ (w++z)
-    | a == "/" = (x++y) ++ " " ++ (w++z)
-    where a = last results
-          x = head results
-          y = head (tail results)
-          w = last (init (init results))
-          z = last (init results)
-arvore :: [[String]] -> String
-arvore results
-    | results == [] = ""
-    | otherwise = arvRegra (head results)
-{
-avancaUmComposto :: [[String]] -> [[String]]
-avancaUmComposto results = tail results
-arvore :: [[String]] -> String
-arvore results = arvRegra (head results)
-arvore x
-    | x == [] = ""
-    | otherwise = arvRegra (head results)
-    where x = avancaUmComposto results
-}
-bar :: IO()
-bar = putStrLn (arvore results)
--}
+bar = putStrLn (formula ++ "\n" ++ arvore results ++ "\n" ++ contradicao nos (head nos) (last nos))
