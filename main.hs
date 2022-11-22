@@ -4,6 +4,7 @@ main = do
     formula <- getLine
     print ("formula = " ++ formula)
 
+------ INPUT -------
 
 getProgram :: IO ()
 getProgram = do
@@ -82,6 +83,9 @@ ajeita str = [value, prim, op, seg]
           prim = take 5 (tail str) 
           op = take 1 (tail (tail (tail (tail (tail (tail formula))))))
           seg = reverse (take 5 (reverse str))-}
+
+
+------- Tableaux -------
 
 regra :: [String] -> [String]
 regra x
