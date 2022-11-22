@@ -8,13 +8,10 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# OPTIONS_GHC -Wno-unused-matches #-}
 
-module Lib
+module Input
   ( getProgram,
     countOpenParens,
     countCloseParens,
-    indexOf,
-    getIndexOf,
-    getFirstPart,
     splitProgramsFunc,
     splitByFormulaValue,
     splitValue,
@@ -22,10 +19,9 @@ module Lib
     getSecondProgram,
     returnSecondProgram,
     executeFunc,
-    getFirstProgram,
     insert,
     getFullValues,
-    -- splitProgramsFunc2,
+    mapInd,
   )
 where
 
@@ -41,31 +37,21 @@ countOpenParens str = length $ filter (== '(') str
 countCloseParens :: String -> Int
 countCloseParens str = length $ filter (== ')') str
 
-indexOf :: (Eq a) => a -> [a] -> Int
-indexOf n [] = -1
-indexOf n (x : xs)
-  | n == x = 0
-  | otherwise = case n `indexOf` xs of
-      -1 -> -1
-      i -> i + 1
-
-getIndexOf :: Char -> String -> String -> Int
-getIndexOf c str = head . (filter (> -1) . map (\y -> if y == c then indexOf y str else -1))
-
-getFirstPart :: Char -> String -> String -> String
-getFirstPart c str = head . (filter (not . null) . map (\y -> if y == c then take (getIndexOf c str str) str else []))
-
 splitAtIndex :: Int -> [Char] -> [[Char]]
 splitAtIndex = \n -> \xs -> [take n xs, [xs !! max 0 n], drop n (tail xs)]
+
+-- variant of map that passes each element's index as a second argument to f
+mapInd :: (a -> Int -> b) -> [a] -> [b]
+mapInd f l = zipWith f l [0 ..]
 
 splitProgramsFunc :: String -> String -> [String]
 splitProgramsFunc str =
   head
     . ( filter (not . null)
-          . map
-            ( \y ->
-                ( if (y == '>' || y == '^' || y == 'v') && (countOpenParens (getFirstPart y str str) == countCloseParens (getFirstPart y str str))
-                    then splitAtIndex (getIndexOf y str str) str
+          . mapInd
+            ( \y l ->
+                ( if (y == '>' || y == '^' || y == 'v') && (countOpenParens (take l str) == countCloseParens (take l str))
+                    then splitAtIndex l str
                     else []
                 )
             )
@@ -85,12 +71,10 @@ splitValue str = head . (filter (not . null) . map (\y -> if y == 'V' || y == 'F
 -- v((avb),(b^a))
 -- v(v(a,b),^(b,a))
 -- "Vb>(a^(bva))"
+-- "F(avb)v(a^b)"
 
 getSecondProgram :: [String] -> String
 getSecondProgram list = list !! 1
-
-getFirstProgram :: [a] -> a
-getFirstProgram = head
 
 returnSecondProgram :: String -> String
 returnSecondProgram str = getSecondProgram (splitValue str str)
@@ -98,8 +82,13 @@ returnSecondProgram str = getSecondProgram (splitValue str str)
 executeFunc :: String -> [String]
 executeFunc str = splitProgramsFunc (returnSecondProgram str) (returnSecondProgram str)
 
-insert :: a -> [a] -> [a]
-insert str [a] = [str, a]
+insert :: String -> [String] -> [String]
+insert str list = [val, fstList, sndList, thrList]
+  where
+    val = str
+    fstList = head list
+    sndList = head (tail list)
+    thrList = last list
 
 getFullValues :: String -> [String]
-getFullValues str = insert (getFirstProgram (splitValue str str)) (executeFunc str)
+getFullValues str = insert (head (splitValue str str)) (executeFunc str)
