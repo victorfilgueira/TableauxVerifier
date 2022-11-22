@@ -97,14 +97,13 @@ makeNo gal1 gal2 gal11 gal12 gal21 gal22 =
 
 nos = makeNo gal1 gal2 gal11 gal12 gal21 gal22
 
-head' :: [String] -> String
+{-head' :: [String] -> String
 head' [] = ""
 head' (x:xs) = x
-
 last' :: [String] -> String
 last' [] = ""
 last' (x:[]) = x
-last' (x:xs) = last' xs
+last' (x:xs) = last' xs-}
 
 compara :: String -> String -> Bool
 compara no1 no2 = if a == b then 
@@ -130,41 +129,59 @@ contradicao nos no1 no2
     | (nos == [] || aux1 == [] || aux2 == []) = "Nao ha contradicao"
 
     | no1 /= no2 = if compara no1 no2 then "Contradicao"
-                        else contradicao aux1 (head' aux1) (last' aux1)
-    | no1 == no2 = contradicao aux2 (head' aux2) (last' aux2)
+                        else contradicao aux1 (head aux1) (last aux1)
+    | no1 == no2 = contradicao aux2 (head aux2) (last aux2)
 
     where aux1 = (removeUlt nos)
           aux2 = (avancaUm nos)
 
-arvore :: [String] -> [String] -> [String] -> [String] -> [String]
-arvore result mesmo dif1 dif2
-    | a == ";" = [x++y] ++ [w++z]
-    | a == "/" = (x++y):dif1 ++ (w++z):dif2
-    where a = last result
-          x = head' result
-          y = head' (tail result)
-          w = last' (init (init result))
-          z = last' (init result)
+results = [resultx, resulty, resultw]
+
+arvRegra :: [String] -> String
+arvRegra results
+    | a == ";" = (x++y) ++ "\n" ++ (w++z)
+    | a == "/" = (x++y) ++ " " ++ (w++z)
+    where a = last results
+          x = head results
+          y = head (tail results)
+          w = last (init (init results))
+          z = last (init results)
+
+avancaUmComposto :: [[String]] -> [[String]]
+avancaUmComposto results = tail results
+
+arvore :: [[String]] -> String
+arvore [] = ""
+arvore (x:xs) = arvRegra x ++ "\n" ++ arvore xs
+arvore [x] = arvRegra x
+
+bar :: IO()
+bar = putStrLn (arvore results)
 
 {-
-
-juntaGalhos :: [String] -> String
-juntaGalhos result lista = (x++y):(w++z):lista
-    where x = head' result
-          y = head' (tail result)
-          w = last' (init (init result))
-          z = last' (init result)
-
-arvore :: [String] -> [String] -> [String] -> [String] -> [String]
-arvore result mesmo dif1 dif2
-    | a == ";" = (x++y):(w++z):mesmo
-    | a == "/" = (x++y):dif1 ++ (w++z):dif2
-    where a = last result
-          x = head' result
-          y = head' (tail result)
-          w = last' (init (init result))
-          z = last' (init result)
-
------------------------------------------------------------------------------
-
+arvRegra :: [String] -> String
+arvRegra results
+    | a == ";" = (x++y) ++ "\n" ++ (w++z)
+    | a == "/" = (x++y) ++ " " ++ (w++z)
+    where a = last results
+          x = head results
+          y = head (tail results)
+          w = last (init (init results))
+          z = last (init results)
+arvore :: [[String]] -> String
+arvore results
+    | results == [] = ""
+    | otherwise = arvRegra (head results)
+{
+avancaUmComposto :: [[String]] -> [[String]]
+avancaUmComposto results = tail results
+arvore :: [[String]] -> String
+arvore results = arvRegra (head results)
+arvore x
+    | x == [] = ""
+    | otherwise = arvRegra (head results)
+    where x = avancaUmComposto results
+}
+bar :: IO()
+bar = putStrLn (arvore results)
 -}
