@@ -4,7 +4,8 @@ main = do
     formula <- getLine
     print ("formula = " ++ formula)
 
------- INPUT -------
+
+------- Input -------
 
 getProgram :: IO ()
 getProgram = do
@@ -72,7 +73,7 @@ insert str list = [val, fstList, sndList, thrList]
     sndList = head (tail list)
     thrList = last list
 
-formula = "F(~avb)v(a>b)"
+formula = "F(bva)^(b^a)"
 
 ajeita :: String -> [String]
 ajeita str = insert (head (splitValue str str)) (executeFunc str)
@@ -83,7 +84,6 @@ ajeita str = [value, prim, op, seg]
           prim = take 5 (tail str) 
           op = take 1 (tail (tail (tail (tail (tail (tail formula))))))
           seg = reverse (take 5 (reverse str))-}
-
 
 ------- Tableaux -------
 
@@ -113,11 +113,13 @@ stringToList form = [form]
 
 listFormula = stringToList formula
 
+-- Faz o primeiro galho cujo pai é a fórmula
 galho1 :: [String] -> [String] -> [String]
 galho1 result form = [pai, filho]
     where filho = head result ++ head (tail result)
           pai = last form
 
+-- Faz o segundo galho cujo pai é o primeiro galho
 galho2 :: [String] -> [String] -> [String]
 galho2 result gal1  = [pai, filho]
     where filho = head (tail (tail result)) ++ last (init result)
@@ -149,15 +151,11 @@ gal12 = galho2 resulty gal11
 gal21 = galho1 resultw gal12
 gal22 = galho2 resultw gal12
 
-galhos = [gal1, gal2, gal11, gal12, gal21, gal22]
-
 pegaNo :: [String] -> String
 pegaNo gal = last gal
 
 pegaNo2 :: [String] -> String
 pegaNo2 gal = head (ajeita2 gal)
-
--- ["F(avb)v(a^b)","F(avb)","F(a^b)","Fa","Fb","Fa","Fb"]
 
 makeNo :: [String] -> [String] -> [String] -> [String] -> [String] -> [String] -> [String]
 makeNo gal1 gal2 gal11 gal12 gal21 gal22 = 
