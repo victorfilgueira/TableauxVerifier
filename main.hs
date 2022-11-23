@@ -2,9 +2,6 @@
 ------- Terminal Interaction ------
 
 main = do
-    putStrLn "Digite sua formula: "
-    formula <- getLine
-    print ("formula = " ++ formula)
     resultado <- bar
     print resultado
 
@@ -48,10 +45,6 @@ splitByFormulaValue (c : cs) delim
 splitValue :: String -> [Char] -> [String]
 splitValue str = head . (filter (not . null) . map (\y -> if y == 'V' || y == 'F' then splitByFormulaValue str y else []))
 
--- v((avb),(b^a))
--- v(v(a,b),^(b,a))
--- "Vb>(a^(bva))"
--- "F(avb)v(a^b)"
 
 getSecondProgram :: [String] -> String
 getSecondProgram list = list !! 1
@@ -198,7 +191,7 @@ contradicao :: [String] -> String -> String -> String
 contradicao nos no1 no2
     | (nos == [] || aux1 == [] || aux2 == []) = "Nao ha contradicao"
 
-    | no1 /= no2 = if compara no1 no2 then ("Contradicao")
+    | no1 /= no2 = if compara no1 no2 then "Contradicao"
                         else contradicao aux1 (head aux1) (last aux1)
     | no1 == no2 = contradicao aux2 (head aux2) (last aux2)
 
