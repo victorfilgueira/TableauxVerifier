@@ -6,7 +6,11 @@ Gabriel Brandão & Victor Filgueira
 
 Para executar o código:
 
-Inserir a fórmula que deseja na linha 74 do arquivo "main.hs". 
+No terminal do seu SO (testado em Windows Powershell) digite "ghc --make main.hs".
+
+Em seguida, digite quando acabar de processar, digite "./main" para executar o código.
+
+Insira uma fórmula válida conforme indicado abaixo:
 
 * A fórmula deve estar em um padrão F(x)op(y), onde 'F' é o primeiro valor que nega a fórmula, 
 'x' e 'y' são os termos da fórmula, que por sua vez são compostos por 'avb' ou 'a^b' ou 'a>b', por exemplo. 
@@ -18,11 +22,6 @@ Exs:
 - F(b^a)>(avb)
 - F(bva)^(b^a)
 
+Aperte "Enter".
 
-A seguir digite no terminal: ghci
-
-Digite então: :l main.hs para compilar o arquivo.
-
-agora basta chamar a função principal digitando "bar".
-
-O ghci colocará na tela a árvore feita e dirá se existe contradição ou não.
+O terminal colocará na tela a árvore feita e dirá se existe contradição ou não.
