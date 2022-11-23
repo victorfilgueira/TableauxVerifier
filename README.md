@@ -4,6 +4,10 @@ Trabalho Linguagens de Programação 2022.2
 
 Gabriel Brandão & Victor Filgueira
 
+Assumindo que tenha um editor de texto, abra estes arquivos e siga as instruções abaixo.
+
+Caso não possua, ghci instalado na sua máquina, instale por este link: https://www.haskell.org/downloads/
+
 No arquivo "main.hs" insira uma fórmula válida na linha 66 conforme indicado abaixo:
 
 * A fórmula deve estar em um padrão F(x)op(y), onde 'F' é o primeiro valor que nega a fórmula, 
@@ -18,8 +22,7 @@ Exs:
 
 Agora, para executar o código existem 2 maneiras:
 
- - No terminal do seu SO (testado em Windows Powershell com ghci instalado. Caso não possua, instale por este link 
- https://www.haskell.org/downloads/)
+ - No terminal do seu SO (testado em Windows Powershell com ghci instalado)
  
   Digite "ghc --make main.hs"
 
